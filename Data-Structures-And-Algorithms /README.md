@@ -1,0 +1,1 @@
+execute: `./main n` (n is an int from 1 to 16)
