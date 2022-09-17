@@ -1,0 +1,40 @@
+version: "3.3"
+services:
+  db:
+    image: mysql
+    container_name: db
+    ports:
+    - "3306:3306"
+    hostname: mysql
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_DATABASE: "test"
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "test"
+    command: --init-file /docker-entrypoint-initdb.d/file.sql
+    volumes:
+        - ./DDL/file.sql:/docker-entrypoint-initdb.d/file.sql
+    networks:
+      - learning
+  backend:
+    # image: golang
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./build/golang/Dockerfile
+    ports:
+    - "6969:6969"
+    depends_on:
+    - db
+    hostname: golang
+    volumes:
+    - ./:/app
+    restart: always
+    command: reflex -r '\.go' -s go run main.go
+    networks:
+      - learning
+
+networks:
+  learning:
+    driver: bridge
