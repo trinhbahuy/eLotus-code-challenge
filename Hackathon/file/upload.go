@@ -22,6 +22,10 @@ type File struct {
 
 // Upload is http function for process uploading image
 func Upload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		outputHTML(w, r, "./html/upload.html")
+	}
+
 	// validate file size
 	r.Body = http.MaxBytesReader(w, r.Body, MaxFileSize)
 
@@ -111,4 +115,16 @@ func isImage(contentType string) bool {
 	default:
 		return false
 	}
+}
+
+// outputHTML serve html content
+func outputHTML(w http.ResponseWriter, req *http.Request, filename string) {
+	file, err := os.Open(filename)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer file.Close()
+	fi, _ := file.Stat()
+	http.ServeContent(w, req, file.Name(), fi.ModTime(), file)
 }
